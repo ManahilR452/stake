@@ -1,0 +1,61 @@
+Build/continue "Stakes" — a web app that reads any suspicious message (SMS, email, call transcript, WhatsApp text) and, instead of a red/green verdict, teaches the person to see the manipulation pattern themselves. This is a hackathon project for HackSummer'26, theme "Trust Me." Use Replit's AI Agent to scaffold/debug, and use Replit's built-in database for the feature described below — this is a hard requirement of the hackathon brief.
+
+## Core product logic
+
+For any pasted text, produce two things — never a single risk score:
+
+1. TACTIC IDENTIFICATION — find the exact phrase(s) using a manipulation tactic and name the tactic. Use ONLY this fixed taxonomy (taxonomy.ts):
+   - Urgency / Time Pressure ("act within 10 minutes", "locked today")
+   - Fake Authority ("this is your bank", "official notice from NADRA")
+   - Secrecy / Isolation ("don't tell anyone", "keep this confidential")
+   - Fear / Threat ("legal action will be taken", "account compromised")
+   - Reciprocity ("waiving your fee as a courtesy")
+   - Too-Good-To-Be-True ("you've won", "guaranteed returns")
+   - False Familiarity ("as we discussed", uses personal details to seem legitimate)
+
+2. EXPOSURE — state plainly what's being asked for and the concrete real-world consequence if given. Fixed taxonomy:
+   - OTP / verification code → "someone can access your bank account or complete a transaction in your name"
+   - CNIC / national ID number → "someone can attempt identity theft or fraudulent account opening"
+   - Bank account / IBAN details → "someone can attempt unauthorized transfers"
+   - Upfront payment / fee → "you lose that money with no service or refund"
+   - Click a link → "the link may capture your credentials or install malware"
+   - Personal/family details → "used to make future scams more convincing (pretexting)"
+
+## Anti-hallucination architecture
+
+- validator.ts: every quoted_phrase returned by the LLM must be checked as a verbatim substring of the original input BEFORE rendering. Discard any finding that isn't an exact match.
+- prefilter.ts: regex pre-filter for high-confidence patterns BEFORE the LLM call — Pakistani CNIC format (42101-XXXXXXX-X), PK IBANs (PK24...), numeric OTP sequences, upfront-payment keywords (EasyPaisa, JazzCash, wire transfer), links/shortened URLs (bit.ly, tinyurl), and urgency/threat keywords in English, Urdu, and Roman Urdu (fawri, block ho gya, aaj hi).
+- Dual-signal cross-validation: merge regex and LLM findings. If the regex engine finds a high-confidence signal the LLM missed, surface it anyway, tagged "Rule Pre-filter" vs "LLM Taxonomy Match" vs "Dual-Signal Verified".
+- llm.ts: call an LLM with strict JSON schema output (array of {quoted_phrase, tactic, ask_type} objects, no free text). Include an offline fallback analysis engine (keyword/regex-only) so the app works even without an API key.
+
+## Frontend — hero interactions
+
+- InlineHighlighter.tsx: original text rendered with soft amber highlights; clicking/hovering opens a margin annotation panel with tactic name, verbatim quote, psychological logic, and validation source tag.
+- Radar-sweep progressive scanning animation during analysis, not a generic spinner.
+- ExposureCards.tsx: icons (Key, ID Card, Credit Card, Link, Banknote), plain-language ask + consequence, muted red severity styling — red reserved only for exposure cards, amber for tactics.
+- Closing "Pattern recognized" takeaway line summarizing the main tactic combo found.
+- SamplePresets.tsx: 1-click presets for Urgent Bank OTP (English), WhatsApp Scam (Roman Urdu), Fake NADRA Alert (English/Urdu), Lottery/Prize Email (English).
+- HowItWorksModal.tsx: explains the pre-filter engine, LLM taxonomy, and anti-hallucination guarantee.
+
+## Additional features to add
+
+1. Pattern Library (Replit DB) — new file db.ts. After each analysis, write an anonymized entry to Replit DB: just the tactic types and exposure types found, no message text, no PII. Add a small stat component on the main page reading aggregate counts from Replit DB and displaying: "X messages analyzed, most common tactic: [tactic]."
+2. Update HowItWorksModal.tsx with one paragraph noting the six tactics are grounded in established persuasion research (Cialdini's principles: scarcity→Urgency, authority→Fake Authority, reciprocity→Reciprocity, fear appeals→Fear/Threat).
+3. Add a persistent disclaimer line near results: "No flags found doesn't mean this is 100% safe — always verify requests for money or codes through a separate, trusted channel."
+4. Add a "Technical / Plain" toggle in the annotation panel — two explanation strings per tactic in taxonomy.ts (technical + plain-language), swapped by toggle, no extra API call.
+5. Add a "What Legitimate Looks Like" toggle — one additional LLM call that rewrites the message into a plausible, non-manipulative version, shown side-by-side with the flagged original. Cache per-analysis, don't regenerate on every toggle.
+6. Add a "Pattern Density" visual near the results header — a horizontal bar/dot cluster showing tactics-per-100-words, labeled qualitatively ("Low/Moderate/High density"), not as a percentage.
+
+## Design direction
+
+Reject generic Bootstrap/Tailwind-starter look. Tone: calm, clinical, trustworthy — not alarmist. One distinctive serif or characterful sans for headers, clean sans for body. Small deliberate palette: warm off-white or deep charcoal base, ONE amber accent for tactic highlights, red reserved only for exposure/consequence severity. Fully responsive, mobile-first.
+
+## Scope constraints
+
+- Text-paste input only, no file/OCR/audio/image processing.
+- English + Urdu (script and Roman Urdu) support in taxonomy and prefilter keywords.
+- No login required for core use; Replit DB used only for the anonymized aggregate Pattern Library stat.
+- No numeric 0-100 risk score anywhere in the app.
+- Keep architecture modular: taxonomy.ts, validator.ts, prefilter.ts, llm.ts, db.ts, InlineHighlighter.tsx, ExposureCards.tsx, SamplePresets.tsx, HowItWorksModal.tsx.
+
+Build/extend this end to end using Replit's AI Agent, wire up Replit DB for the Pattern Library, and prepare it for one-click deployment.

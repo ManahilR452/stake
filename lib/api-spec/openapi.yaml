@@ -10,13 +10,20 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: analyze
+    description: Scam message analysis
+  - name: tactics
+    description: Manipulation tactics taxonomy
+  - name: stats
+    description: Anonymized aggregate Pattern Library stats
+  - name: rewrite
+    description: Legitimate message rewriter
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +31,232 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /analyze:
+    post:
+      operationId: analyzeMessage
+      tags: [analyze]
+      summary: Analyze a message for manipulation tactics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageInput"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResult"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
+  /tactics:
+    get:
+      operationId: listTactics
+      tags: [tactics]
+      summary: List all known manipulation tactics
+      responses:
+        "200":
+          description: List of tactics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tactic"
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [stats]
+      summary: Get anonymized aggregate Pattern Library stats
+      responses:
+        "200":
+          description: Aggregate stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsResult"
+
+  /rewrite:
+    post:
+      operationId: rewriteMessage
+      tags: [rewrite]
+      summary: Rewrite a flagged message into a legitimate non-manipulative version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RewriteInput"
+      responses:
+        "200":
+          description: Rewritten message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RewriteResult"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    MessageInput:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          minLength: 1
+
+    Flag:
+      type: object
+      required:
+        - phrase
+        - startIndex
+        - endIndex
+        - tactic
+        - tacticLabel
+        - tacticDescription
+        - technicalExplanation
+        - plainExplanation
+        - exposure
+        - consequence
+        - severity
+        - validationSource
+      properties:
+        phrase:
+          type: string
+          description: Exact verbatim substring from the original message
+        startIndex:
+          type: integer
+        endIndex:
+          type: integer
+        tactic:
+          type: string
+          description: Tactic identifier from the fixed taxonomy
+        tacticLabel:
+          type: string
+        tacticDescription:
+          type: string
+          description: One-sentence explanation of why this phrase is the tactic
+        technicalExplanation:
+          type: string
+          description: Technical explanation referencing persuasion research
+        plainExplanation:
+          type: string
+          description: Plain-language explanation for non-expert users
+        exposure:
+          type: string
+          description: What is being asked for
+        consequence:
+          type: string
+          description: Plain-language real-world consequence if complied with
+        severity:
+          type: string
+          enum: [low, medium, high]
+        validationSource:
+          type: string
+          enum: [rule_prefilter, llm_taxonomy, dual_verified]
+          description: How this flag was detected
+
+    AnalysisResult:
+      type: object
+      required: [verdict, summary, flags, messageLength, patternDensity]
+      properties:
+        verdict:
+          type: string
+          enum: [safe, suspicious, scam]
+        summary:
+          type: string
+        flags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Flag"
+        messageLength:
+          type: integer
+        patternDensity:
+          type: string
+          enum: [low, moderate, high]
+          description: Qualitative tactics-per-100-words density
+        takeaway:
+          type: ["string", "null"]
+          description: Closing pattern-recognized summary line (null when no flags)
+
+    Tactic:
+      type: object
+      required: [id, label, description, technicalExplanation, plainExplanation, examples]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        technicalExplanation:
+          type: string
+        plainExplanation:
+          type: string
+        examples:
+          type: array
+          items:
+            type: string
+
+    StatsResult:
+      type: object
+      required: [totalAnalyzed, mostCommonTactic, tacticCounts, exposureCounts]
+      properties:
+        totalAnalyzed:
+          type: integer
+        mostCommonTactic:
+          type: string
+        tacticCounts:
+          type: object
+          additionalProperties:
+            type: integer
+        exposureCounts:
+          type: object
+          additionalProperties:
+            type: integer
+
+    RewriteInput:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          minLength: 1
+
+    RewriteResult:
+      type: object
+      required: [original, rewritten]
+      properties:
+        original:
+          type: string
+        rewritten:
+          type: string
+
+    ApiError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
