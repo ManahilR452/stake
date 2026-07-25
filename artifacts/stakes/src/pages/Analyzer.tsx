@@ -14,7 +14,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { InlineHighlighter } from '@/components/InlineHighlighter';
 import { ExposureCards } from '@/components/ExposureCards';
 import { SamplePresets } from '@/components/SamplePresets';
-import { HowItWorksModal } from '@/components/HowItWorksModal';
 import { PatternDensity } from '@/components/PatternDensity';
 import { StatsBar } from '@/components/StatsBar';
 import { RiskGauge, computeRiskScore } from '@/components/RiskGauge';
@@ -208,7 +207,6 @@ export default function Analyzer() {
           </div>
 
           <div className="flex items-center gap-1">
-            <HowItWorksModal />
             <Button variant={showTactics ? 'secondary' : 'ghost'} size="sm"
               onClick={() => setShowTactics(!showTactics)}
               className="text-xs font-mono text-muted-foreground hidden md:flex">

@@ -131,9 +131,17 @@ router.post("/analyze", async (req, res): Promise<void> => {
       f.exposure.toLowerCase().includes("verification code") ||
       f.exposure.toLowerCase().includes("cnic") ||
       f.exposure.toLowerCase().includes("national id") ||
+      f.exposure.toLowerCase().includes("password") ||
+      f.exposure.toLowerCase().includes("pin") ||
       f.tactic === "identity_verification"
   );
-  if (hasIdentityExposure || (hasHighSeverity && deduped.length >= 2)) {
+  const hasPaymentDemand = deduped.some(
+    (f) =>
+      f.exposure.toLowerCase().includes("upfront payment") ||
+      f.exposure.toLowerCase().includes("fee") ||
+      f.exposure.toLowerCase().includes("investment")
+  );
+  if (hasIdentityExposure || hasPaymentDemand || (hasHighSeverity && deduped.length >= 2)) {
     verdict = "scam";
   } else if (deduped.length > 0 && verdict === "safe") {
     verdict = "suspicious";

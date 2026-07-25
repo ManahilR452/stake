@@ -1,0 +1,75 @@
+HACKSUMMER’26 BRIEF 
+Theme: Trust Me 
+Objective 
+Build technology that helps people decide what, who, or which information they can trust. Projects may 
+address verification, transparency, fraud, identity, misinformation, explainable AI, cybersecurity, or digital 
+trust. 
+Tip: Keep asking yourself “Does this solution actually improve trust?” 
+Marking Criteria & Rubric 
+Criterion 
+Theme Relevance & Impact 
+Innovation / Novelty 
+Execution & Demo 
+Technical Depth 
+Feasibility 
+Total 
+Marks 
+5 
+Focus 
+Direct connection to trust 
+5 
+5 
+5 
+5 
+25  
+Criteria Definitions 
+● Theme Relevance & Impact  
+Genuine differentiation 
+Working, coherent demo 
+Substantive engineering 
+Real-world viability 
+How directly and meaningfully does the solution address trust, verification, transparency, fraud, 
+identity, misinformation, cybersecurity, etc.? 
+● Innovation / Novelty  
+Is the idea, approach, or implementation meaningfully different from obvious existing solutions? 
+● Execution & Demo  
+Does the core product actually work? Is the user flow coherent? Does the demo prove the claimed 
+functionality? 
+● Technical Depth  
+Is there meaningful engineering behind the solution - APIs, models, algorithms, architecture, security 
+mechanisms, data processing, etc.?  
+Note: this is scored as Technical Depth, not Technical Complexity. Complexity for its own sake does 
+not earn marks. 
+● Feasibility 
+Could this realistically work beyond the hackathon? Are the assumptions, data requirements, 
+scalability, deployment, and user adoption reasonable? 
+Demo Format 
+3-minute pitch/demo followed by 2 minutes of judges’ Q&A (5 minutes total). 
+Time 
+0:00 – 0:30 
+Segment 
+Description 
+Problem 
+0:30 – 2:30 
+Product / 
+Demo 
+Frame the trust problem being solved and why it matters. 
+Live walkthrough proving the core functionality works end to end. 
+2:30 – 3:00 
+Technical 
+Approach & 
+Impact 
+Summarize the engineering behind the solution and its real-world 
+impact. 
+3:00 – 5:00 
+Replit 
+Judges’ 
+Questions 
+Open Q&A with the judging panel. 
+You must use Replit features for your build. This can include one or more of the following: the AI Agent for 
+scaffolding and debugging, built-in databases and authentication, one-click Connectors and integrations, 
+real-time multiplayer collaboration, and one-click deployment/hosting. 
+Additional Requirements 
+● You are not allowed to use any old projects for this hackathon. All work must be built from scratch. 
+● You must submit your repo link and demo link (if deployed) before the allotted time officially ends. Any 
+submissions received after this time shall not be considered.
