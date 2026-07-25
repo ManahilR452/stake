@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, ShieldCheck, Search, CheckCircle2, AlertTriangle, XCircle, ShieldAlert, ArrowRight, BrainCircuit } from 'lucide-react';
+import {
+  AlertCircle, ShieldCheck, Search, CheckCircle2, AlertTriangle,
+  XCircle, ShieldAlert, BrainCircuit, Scan, ArrowLeft
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { InlineHighlighter } from '@/components/InlineHighlighter';
@@ -15,23 +18,54 @@ import { PatternDensity } from '@/components/PatternDensity';
 import { StatsBar } from '@/components/StatsBar';
 import { useRewriteMessage } from '@workspace/api-client-react';
 
+/* ── Radar sweep animation during analysis ─────────────────────────── */
 const ScannerAnimation = () => (
-  <div className="relative w-full h-full min-h-[300px] bg-secondary/20 rounded-lg overflow-hidden border border-dashed flex flex-col items-center justify-center">
+  <div className="relative w-full min-h-[300px] rounded-xl overflow-hidden border border-primary/20 bg-primary/5 flex flex-col items-center justify-center">
+    {/* Horizontal scan line */}
     <motion.div
-      className="absolute inset-0 bg-primary/5"
-      initial={{ top: "-100%" }}
-      animate={{ top: "100%" }}
-      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+      className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-70"
+      initial={{ top: '0%' }}
+      animate={{ top: '100%' }}
+      transition={{ duration: 1.8, repeat: Infinity, ease: 'linear' }}
     />
-    <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:100%_4px]" />
-    <Search className="w-10 h-10 text-primary opacity-50 mb-4 z-10 animate-pulse" />
-    <div className="z-10 text-center px-4">
-      <h3 className="font-mono text-sm font-bold uppercase tracking-widest text-primary mb-2">Forensic Scan Active</h3>
-      <p className="text-xs text-muted-foreground font-mono">Running pre-filter heuristics and LLM taxonomy match...</p>
+    {/* Soft glow under scan line */}
+    <motion.div
+      className="absolute left-0 right-0 h-16 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none"
+      initial={{ top: '0%' }}
+      animate={{ top: '100%' }}
+      transition={{ duration: 1.8, repeat: Infinity, ease: 'linear' }}
+    />
+    {/* Grid lines */}
+    <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.06)_1px,transparent_1px)] bg-[size:40px_40px]" />
+    {/* Center content */}
+    <div className="z-10 flex flex-col items-center gap-3 px-6 text-center">
+      <motion.div
+        animate={{ scale: [1, 1.12, 1], opacity: [0.7, 1, 0.7] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <Scan className="w-10 h-10 text-primary" />
+      </motion.div>
+      <h3 className="font-mono text-sm font-bold uppercase tracking-widest text-primary">
+        Forensic Scan Active
+      </h3>
+      <p className="text-xs font-mono text-muted-foreground max-w-xs">
+        Running pre-filter heuristics · cross-referencing LLM tactic taxonomy · validating phrase offsets
+      </p>
+      <div className="flex gap-1 mt-2">
+        {[0, 0.2, 0.4].map((delay, i) => (
+          <motion.span
+            key={i}
+            className="w-1.5 h-1.5 rounded-full bg-primary"
+            animate={{ opacity: [0.2, 1, 0.2] }}
+            transition={{ duration: 0.8, repeat: Infinity, delay }}
+          />
+        ))}
+      </div>
     </div>
   </div>
 );
 
+/* ── Rewrite comparison panel ──────────────────────────────────────── */
 const RewriteSection = ({ originalMessage }: { originalMessage: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   const rewriteMutation = useRewriteMessage();
@@ -44,14 +78,21 @@ const RewriteSection = ({ originalMessage }: { originalMessage: string }) => {
   };
 
   return (
-    <div className="mt-8 pt-8 border-t border-dashed">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mt-8 pt-8 border-t border-dashed border-border">
+      <div className="flex items-center justify-between mb-5">
         <div>
-          <h3 className="font-bold text-lg">What Legitimate Looks Like</h3>
-          <p className="text-sm text-muted-foreground">See how this message would be written without manipulation tactics.</p>
+          <h3 className="font-bold text-base">What Legitimate Looks Like</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            See how this message reads without the manipulation tactics.
+          </p>
         </div>
-        <Button onClick={handleToggle} variant={isOpen ? "secondary" : "outline"} className="font-mono text-sm">
-          {isOpen ? "Hide Comparison" : "Rewrite Message"}
+        <Button
+          onClick={handleToggle}
+          variant={isOpen ? 'secondary' : 'outline'}
+          size="sm"
+          className="font-mono text-xs shrink-0"
+        >
+          {isOpen ? 'Hide' : 'Rewrite'}
         </Button>
       </div>
 
@@ -59,31 +100,33 @@ const RewriteSection = ({ originalMessage }: { originalMessage: string }) => {
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
             {rewriteMutation.isPending && (
-              <div className="p-8 bg-secondary/20 rounded-lg border border-dashed flex flex-col items-center justify-center text-center">
-                <Search className="w-6 h-6 text-muted-foreground animate-spin mb-3" />
-                <p className="font-mono text-sm text-muted-foreground">Removing manipulation tactics...</p>
+              <div className="p-8 bg-primary/5 rounded-xl border border-primary/20 flex flex-col items-center justify-center text-center gap-3">
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}>
+                  <Search className="w-5 h-5 text-primary" />
+                </motion.div>
+                <p className="font-mono text-sm text-muted-foreground">Removing manipulation tactics…</p>
               </div>
             )}
             {rewriteMutation.data && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-muted/30 rounded-lg border p-5">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-5">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-destructive/70 mb-3 flex items-center gap-1.5">
                     <AlertTriangle className="w-3 h-3" /> Flagged Original
                   </div>
-                  <div className="font-mono text-sm whitespace-pre-wrap opacity-70 leading-relaxed">
+                  <div className="font-mono text-sm whitespace-pre-wrap opacity-75 leading-relaxed">
                     {rewriteMutation.data.original}
                   </div>
                 </div>
-                <div className="bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/30 rounded-lg p-5">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-2">
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 rounded-xl p-5">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
                     <ShieldCheck className="w-3 h-3" /> Clean Rewrite
                   </div>
-                  <div className="font-mono text-sm whitespace-pre-wrap text-emerald-950 dark:text-emerald-100 leading-relaxed">
+                  <div className="font-mono text-sm whitespace-pre-wrap text-emerald-900 dark:text-emerald-100 leading-relaxed">
                     {rewriteMutation.data.rewritten}
                   </div>
                 </div>
@@ -96,15 +139,32 @@ const RewriteSection = ({ originalMessage }: { originalMessage: string }) => {
   );
 };
 
+/* ── Verdict helpers ───────────────────────────────────────────────── */
+const getVerdictStyle = (verdict: AnalysisResultVerdict) => {
+  switch (verdict) {
+    case 'safe':       return 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50';
+    case 'suspicious': return 'text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/50';
+    case 'scam':       return 'text-destructive bg-destructive/8 border-destructive/30';
+  }
+};
+
+const getVerdictIcon = (verdict: AnalysisResultVerdict) => {
+  switch (verdict) {
+    case 'safe':       return <ShieldCheck className="w-8 h-8 text-emerald-500" />;
+    case 'suspicious': return <AlertTriangle className="w-8 h-8 text-amber-500" />;
+    case 'scam':       return <XCircle className="w-8 h-8 text-destructive" />;
+  }
+};
+
+/* ── Main page ─────────────────────────────────────────────────────── */
 export default function Analyzer() {
   const [message, setMessage] = useState('');
   const [activeFlagIndex, setActiveFlagIndex] = useState<number | null>(null);
   const [showTactics, setShowTactics] = useState(false);
-  
+
   const { data: tactics } = useListTactics();
   const analyzeMutation = useAnalyzeMessage();
   const result = analyzeMutation.data;
-
   const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   const handleAnalyze = () => {
@@ -115,235 +175,241 @@ export default function Analyzer() {
 
   const handleFlagClick = (index: number) => {
     setActiveFlagIndex(index);
-    if (cardRefs.current[index]) {
-      cardRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  };
-
-  const getVerdictColor = (verdict: AnalysisResultVerdict) => {
-    switch (verdict) {
-      case 'safe': return 'text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-400 dark:bg-emerald-950/30 dark:border-emerald-900';
-      case 'suspicious': return 'text-orange-700 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-950/30 dark:border-orange-900';
-      case 'scam': return 'text-red-700 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950/30 dark:border-red-900';
-    }
-  };
-
-  const getVerdictIcon = (verdict: AnalysisResultVerdict) => {
-    switch (verdict) {
-      case 'safe': return <ShieldCheck className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />;
-      case 'suspicious': return <AlertTriangle className="w-8 h-8 text-orange-600 dark:text-orange-400" />;
-      case 'scam': return <XCircle className="w-8 h-8 text-red-600 dark:text-red-400" />;
-    }
+    cardRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-card sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="w-6 h-6 text-primary" />
-            <span className="font-bold text-lg tracking-tight">Stakes</span>
-            <span className="text-muted-foreground ml-2 text-sm font-mono hidden sm:inline-block">/ Forensic Message Analyzer</span>
+
+      {/* ── Header ── */}
+      <header className="sticky top-0 z-20 border-b border-border/60 bg-card/90 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center shadow-sm shadow-primary/30">
+              <ShieldAlert className="w-4 h-4 text-primary-foreground" />
+            </div>
+            <span className="font-bold text-base tracking-tight">Stakes</span>
+            <span className="text-muted-foreground text-xs font-mono hidden sm:inline-block opacity-60 ml-1">
+              / Forensic Message Analyzer
+            </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <HowItWorksModal />
-            <Button 
-              variant={showTactics ? "secondary" : "ghost"} 
-              size="sm" 
-              onClick={() => setShowTactics(!showTactics)} 
-              className="text-muted-foreground font-mono hidden md:flex"
+            <Button
+              variant={showTactics ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setShowTactics(!showTactics)}
+              className="text-xs font-mono text-muted-foreground hidden md:flex"
             >
-              {showTactics ? "Hide taxonomy" : "What we look for"}
+              {showTactics ? 'Hide taxonomy' : 'What we look for'}
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 mt-4 md:mt-8 mb-12">
-        
-        {/* Left Column: Input / Result Highlight */}
+      {/* ── Main grid ── */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6 mb-16">
+
+        {/* Left: Input / Results */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          {!result || analyzeMutation.isPending ? (
-            <div className="flex flex-col gap-4">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight mb-2">Analyze a message</h1>
-                <p className="text-muted-foreground text-lg">Paste a suspicious text, email, or transcript below to dissect it.</p>
-              </div>
-              
-              <div className="mt-4">
+          <AnimatePresence mode="wait">
+            {!result || analyzeMutation.isPending ? (
+              <motion.div
+                key="input"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col gap-5"
+              >
+                <div>
+                  <h1 className="text-3xl font-bold tracking-tight mb-1.5">Analyze a message</h1>
+                  <p className="text-muted-foreground">
+                    Paste a suspicious text, email, or call transcript to dissect its tactics.
+                  </p>
+                </div>
+
                 <SamplePresets onSelect={setMessage} disabled={analyzeMutation.isPending} />
+
                 {analyzeMutation.isPending ? (
                   <ScannerAnimation />
                 ) : (
-                  <Textarea 
+                  <Textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="e.g. 'URGENT: Your account ending in 4921 has been restricted due to suspicious activity. Click here to verify your identity within 24 hours...'"
-                    className="min-h-[300px] resize-y text-base p-6 font-mono leading-relaxed transition-all focus-visible:ring-primary focus-visible:border-primary border-muted bg-card shadow-sm"
-                    disabled={analyzeMutation.isPending}
+                    placeholder={"e.g. 'URGENT: Your account ending in 4921 has been restricted…'"}
+                    className="min-h-[280px] resize-y text-sm p-5 font-mono leading-relaxed focus-visible:ring-primary focus-visible:border-primary border-border bg-card shadow-sm"
+                    onKeyDown={(e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleAnalyze(); }}
                   />
                 )}
-              </div>
 
-              {!analyzeMutation.isPending && (
-                <Button 
-                  size="lg" 
-                  className="w-full sm:w-auto self-end font-mono uppercase tracking-wider mt-2" 
-                  onClick={handleAnalyze}
-                  disabled={!message.trim()}
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Analyze Message
-                </Button>
-              )}
-            </div>
-          ) : (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col gap-6"
-            >
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 pb-4 border-b">
-                <div>
-                  <h2 className="text-2xl font-bold mb-3">Forensic Breakdown</h2>
-                  <PatternDensity density={result.patternDensity} />
-                </div>
-                <Button variant="outline" onClick={() => {
-                  analyzeMutation.reset();
-                  setMessage('');
-                  setActiveFlagIndex(null);
-                }}>
-                  Analyze Another
-                </Button>
-              </div>
-
-              <InlineHighlighter 
-                message={message} 
-                flags={result.flags} 
-                activeFlagIndex={activeFlagIndex}
-                onFlagClick={handleFlagClick}
-              />
-
-              <div className="bg-secondary/40 border border-secondary p-4 rounded-lg flex gap-3 text-sm text-muted-foreground items-start">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <p>
-                  No flags found doesn't mean this message is 100% safe — always verify requests for money or codes through a separate, trusted channel.
-                </p>
-              </div>
-
-              {result.takeaway && (
-                <div className="bg-primary text-primary-foreground p-5 rounded-lg flex items-start gap-4 mt-2 shadow-sm">
-                  <div className="bg-background/20 p-2 rounded-full shrink-0">
-                    <BrainCircuit className="w-5 h-5" />
+                {!analyzeMutation.isPending && (
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground font-mono hidden sm:block opacity-60">
+                      Ctrl+Enter to analyze
+                    </p>
+                    <Button
+                      size="default"
+                      className="font-mono uppercase tracking-wider text-sm px-6 shadow-md shadow-primary/20 ml-auto"
+                      onClick={handleAnalyze}
+                      disabled={!message.trim()}
+                    >
+                      <Search className="w-4 h-4 mr-2" />
+                      Analyze Message
+                    </Button>
                   </div>
+                )}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="results"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col gap-6"
+              >
+                <div className="flex items-center justify-between pb-4 border-b border-border/60">
                   <div>
-                    <h4 className="text-xs font-bold uppercase tracking-widest opacity-80 mb-1">Pattern Recognized</h4>
-                    <p className="font-medium leading-relaxed">{result.takeaway}</p>
+                    <h2 className="text-xl font-bold mb-2">Forensic Breakdown</h2>
+                    <PatternDensity density={result.patternDensity} />
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="font-mono text-xs text-muted-foreground"
+                    onClick={() => { analyzeMutation.reset(); setMessage(''); setActiveFlagIndex(null); }}
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+                    New analysis
+                  </Button>
                 </div>
-              )}
 
-              {result.flags.length > 0 && (
-                <RewriteSection originalMessage={message} />
-              )}
-            </motion.div>
-          )}
+                <InlineHighlighter
+                  message={message}
+                  flags={result.flags}
+                  activeFlagIndex={activeFlagIndex}
+                  onFlagClick={handleFlagClick}
+                />
+
+                {/* Disclaimer */}
+                <div className="bg-muted/50 border border-border/60 rounded-lg px-4 py-3 flex gap-2.5 text-xs text-muted-foreground items-start">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-muted-foreground/70" />
+                  <p>
+                    No flags found doesn't mean this message is 100% safe. Always verify requests for money or codes through a separate, trusted channel.
+                  </p>
+                </div>
+
+                {/* Pattern Recognized takeaway */}
+                {result.takeaway && (
+                  <div className="bg-primary text-primary-foreground rounded-xl px-5 py-4 flex items-start gap-4 shadow-lg shadow-primary/20">
+                    <div className="bg-white/20 p-2 rounded-lg shrink-0">
+                      <BrainCircuit className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">Pattern Recognized</p>
+                      <p className="text-sm font-medium leading-relaxed">{result.takeaway}</p>
+                    </div>
+                  </div>
+                )}
+
+                {result.flags.length > 0 && <RewriteSection originalMessage={message} />}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* Right Column: Tactics Taxonomy OR Consequence Cards */}
+        {/* Right: Tactics sidebar OR verdict + exposure cards */}
         <div className="lg:col-span-5 relative">
           <AnimatePresence mode="wait">
             {showTactics && tactics ? (
-              <motion.div 
+              <motion.div
                 key="tactics"
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="bg-card rounded-xl p-6 border shadow-sm h-[calc(100vh-8rem)] overflow-y-auto sticky top-24"
+                exit={{ opacity: 0, x: 16 }}
+                className="bg-card rounded-xl border border-border shadow-sm h-[calc(100vh-7rem)] overflow-y-auto sticky top-20 p-6"
               >
-                <div className="flex items-center justify-between mb-6 pb-4 border-b">
-                  <h3 className="font-bold text-lg font-mono">Taxonomy of Deception</h3>
-                  <Button variant="ghost" size="icon" onClick={() => setShowTactics(false)}>
-                    <XCircle className="w-5 h-5 text-muted-foreground" />
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/60">
+                  <h3 className="font-bold font-mono text-sm uppercase tracking-wider text-primary">
+                    Taxonomy of Deception
+                  </h3>
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setShowTactics(false)}>
+                    <XCircle className="w-4 h-4 text-muted-foreground" />
                   </Button>
                 </div>
-                <div className="space-y-8">
+                <div className="space-y-7">
                   {tactics.map((t) => (
-                    <div key={t.id} className="relative">
-                      <div className="absolute left-0 top-1.5 bottom-0 w-1 bg-amber-200 dark:bg-amber-900/50 rounded-full" />
-                      <div className="pl-5">
-                        <h4 className="font-bold text-base mb-1 text-foreground">{t.label}</h4>
-                        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{t.description}</p>
-                        <div className="space-y-2">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Examples</span>
-                          {t.examples.map((ex, i) => (
-                            <div key={i} className="text-xs font-mono bg-secondary/50 px-3 py-2 rounded-md border text-muted-foreground">
-                              "{ex}"
-                            </div>
-                          ))}
-                        </div>
+                    <div key={t.id} className="relative pl-4">
+                      <div className="absolute left-0 top-1.5 bottom-0 w-0.5 rounded-full bg-accent/50" />
+                      <h4 className="font-semibold text-sm mb-1">{t.label}</h4>
+                      <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{t.description}</p>
+                      <div className="space-y-1.5">
+                        {t.examples.map((ex, i) => (
+                          <div key={i} className="text-xs font-mono bg-muted/60 px-3 py-1.5 rounded-md text-muted-foreground border border-border/50">
+                            "{ex}"
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}
                 </div>
               </motion.div>
             ) : result ? (
-              <motion.div 
-                key="results"
-                initial={{ opacity: 0, x: 20 }}
+              <motion.div
+                key="verdict"
+                initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex flex-col gap-6"
+                className="flex flex-col gap-4 sticky top-20"
               >
-                {/* Verdict Card */}
-                <Card className={`border-2 shadow-sm ${getVerdictColor(result.verdict)}`}>
-                  <CardContent className="p-6 flex gap-4 items-start">
-                    <div className="shrink-0 mt-1">
-                      {getVerdictIcon(result.verdict)}
-                    </div>
+                {/* Verdict card */}
+                <Card className={`border-2 ${getVerdictStyle(result.verdict)}`}>
+                  <CardContent className="p-5 flex gap-4 items-start">
+                    <div className="shrink-0 mt-0.5">{getVerdictIcon(result.verdict)}</div>
                     <div>
-                      <h3 className="font-bold text-xl uppercase tracking-wider mb-1">
+                      <h3 className="font-bold text-lg uppercase tracking-wider mb-1">
                         {result.verdict}
                       </h3>
-                      <p className="text-sm font-medium opacity-90 leading-relaxed">{result.summary}</p>
+                      <p className="text-sm opacity-85 leading-relaxed">{result.summary}</p>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Flags Header */}
+                {/* Flags header / empty state */}
                 {result.flags.length > 0 ? (
-                  <div className="flex items-center gap-2 mb-2 pt-2">
-                    <AlertCircle className="w-5 h-5 text-muted-foreground" />
-                    <h3 className="font-bold text-lg">Detected Flags</h3>
-                    <Badge variant="secondary" className="ml-auto font-mono">
+                  <div className="flex items-center gap-2 px-1">
+                    <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                    <h3 className="font-semibold text-sm">Detected Flags</h3>
+                    <Badge className="ml-auto font-mono text-xs bg-primary/10 text-primary border-primary/20 hover:bg-primary/10">
                       {result.flags.length} found
                     </Badge>
                   </div>
                 ) : (
-                  <div className="text-center p-10 bg-secondary/30 rounded-xl border border-dashed mt-4">
-                    <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-4 opacity-80" />
-                    <p className="font-bold text-lg mb-1">No manipulation tactics detected.</p>
-                    <p className="text-sm text-muted-foreground">Stay vigilant, but this message appears clean from common forensic markers.</p>
+                  <div className="text-center py-10 px-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-800/40 mt-2">
+                    <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
+                    <p className="font-semibold text-emerald-900 dark:text-emerald-200 mb-1">No manipulation tactics detected.</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      This message appears clean from common forensic markers. Stay vigilant.
+                    </p>
                   </div>
                 )}
 
-                <ExposureCards 
-                  flags={result.flags} 
-                  activeFlagIndex={activeFlagIndex} 
-                  onFlagClick={handleFlagClick} 
-                  cardRefs={cardRefs} 
+                <ExposureCards
+                  flags={result.flags}
+                  activeFlagIndex={activeFlagIndex}
+                  onFlagClick={handleFlagClick}
+                  cardRefs={cardRefs}
                 />
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="h-full hidden lg:flex flex-col items-center justify-center text-center p-10 bg-secondary/20 rounded-xl border border-dashed min-h-[400px]"
+                className="hidden lg:flex flex-col items-center justify-center text-center p-12 rounded-xl border border-dashed border-border bg-muted/20 min-h-[420px] sticky top-20"
               >
-                <ShieldCheck className="w-16 h-16 text-muted-foreground/20 mb-6" />
-                <h3 className="font-medium text-lg text-muted-foreground">Awaiting Input</h3>
-                <p className="text-sm text-muted-foreground/70 mt-3 max-w-sm leading-relaxed">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
+                  <ShieldCheck className="w-8 h-8 text-primary/40" />
+                </div>
+                <h3 className="font-semibold text-muted-foreground mb-2">Awaiting Input</h3>
+                <p className="text-sm text-muted-foreground/60 max-w-xs leading-relaxed">
                   Paste a message to see a forensic breakdown of its psychological tactics and real-world consequences.
                 </p>
               </motion.div>

@@ -61,94 +61,118 @@
 }
 
 :root {
-  /* Stakes — Forensic Lab palette
-     Base: cool white with a barely-perceptible slate tint (like a clean lab)
-     Primary: deep slate-indigo — authoritative, deliberate
-     Accent: warm amber — tactic highlights ONLY
-     Destructive: clear red — consequences ONLY
+  /* Stakes — Vivid Forensic palette (light mode)
+     Primary: electric indigo — bold, trustworthy, analytical
+     Accent:  hot amber     — tactic highlights ONLY
+     Danger:  vivid crimson — consequences ONLY
+     Base:    ink-tinted white — cool, precise, clinical
   */
-  --background: 214 32% 97%;
-  --foreground: 216 28% 12%;
-  --card: 0 0% 100%;
-  --card-foreground: 216 28% 12%;
-  --card-border: 216 18% 89%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 216 28% 12%;
-  --popover-border: 216 18% 89%;
-  --primary: 217 72% 28%;
-  --primary-foreground: 0 0% 100%;
-  --primary-border: 217 72% 22%;
-  --secondary: 214 25% 92%;
-  --secondary-foreground: 216 22% 22%;
-  --secondary-border: 214 18% 86%;
-  --muted: 214 20% 93%;
-  --muted-foreground: 216 16% 48%;
-  --muted-border: 214 18% 88%;
-  --accent: 38 95% 50%;
-  --accent-foreground: 216 28% 10%;
-  --accent-border: 38 95% 40%;
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 100%;
-  --destructive-border: 0 72% 42%;
-  --border: 216 18% 87%;
-  --input: 214 20% 93%;
-  --ring: 217 72% 38%;
+  --background: 232 30% 97%;
+  --foreground: 232 35% 10%;
 
-  --sidebar: 214 32% 97%;
-  --sidebar-foreground: 216 22% 20%;
-  --sidebar-border: 216 18% 89%;
-  --sidebar-primary: 217 72% 28%;
+  --card: 0 0% 100%;
+  --card-foreground: 232 35% 10%;
+  --card-border: 232 22% 89%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 232 35% 10%;
+  --popover-border: 232 22% 89%;
+
+  /* Electric indigo — buttons, focus rings, interactive chrome */
+  --primary: 258 88% 56%;
+  --primary-foreground: 0 0% 100%;
+  --primary-border: 258 88% 46%;
+
+  --secondary: 232 25% 93%;
+  --secondary-foreground: 232 25% 22%;
+  --secondary-border: 232 20% 86%;
+
+  --muted: 232 20% 94%;
+  --muted-foreground: 232 16% 50%;
+  --muted-border: 232 18% 88%;
+
+  /* Hot amber — psychological tactic highlights */
+  --accent: 38 96% 50%;
+  --accent-foreground: 232 35% 8%;
+  --accent-border: 38 96% 40%;
+
+  /* Vivid crimson — real-world consequences */
+  --destructive: 0 84% 57%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-border: 0 84% 47%;
+
+  --border: 232 20% 88%;
+  --input: 232 22% 94%;
+  --ring: 258 88% 56%;
+
+  --sidebar: 232 30% 97%;
+  --sidebar-foreground: 232 25% 22%;
+  --sidebar-border: 232 22% 89%;
+  --sidebar-primary: 258 88% 56%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-primary-border: 217 72% 22%;
-  --sidebar-accent: 214 25% 92%;
-  --sidebar-accent-foreground: 216 28% 12%;
-  --sidebar-accent-border: 214 18% 86%;
-  --sidebar-ring: 217 72% 38%;
+  --sidebar-primary-border: 258 88% 46%;
+  --sidebar-accent: 232 25% 93%;
+  --sidebar-accent-foreground: 232 35% 10%;
+  --sidebar-accent-border: 232 20% 86%;
+  --sidebar-ring: 258 88% 56%;
 
   --app-font-sans: 'Inter', sans-serif;
   --app-font-mono: 'Space Mono', monospace;
-  --radius: 0.3rem;
+  --radius: 0.4rem;
 }
 
 .dark {
-  /* Dark mode: deep slate-navy — like a forensic workstation at night */
-  --background: 217 30% 9%;
-  --foreground: 214 18% 88%;
-  --card: 217 28% 12%;
-  --card-foreground: 214 18% 88%;
-  --card-border: 217 22% 20%;
-  --popover: 217 28% 12%;
-  --popover-foreground: 214 18% 88%;
-  --popover-border: 217 22% 20%;
-  --primary: 213 80% 62%;
-  --primary-foreground: 217 30% 9%;
-  --primary-border: 213 80% 52%;
-  --secondary: 217 22% 17%;
-  --secondary-foreground: 214 18% 80%;
-  --secondary-border: 217 22% 24%;
-  --muted: 217 22% 16%;
-  --muted-foreground: 216 16% 56%;
-  --muted-border: 217 22% 22%;
-  --accent: 38 95% 52%;
-  --accent-foreground: 217 30% 9%;
-  --accent-border: 38 95% 42%;
-  --destructive: 0 65% 55%;
-  --destructive-foreground: 0 0% 100%;
-  --destructive-border: 0 65% 45%;
-  --border: 217 22% 22%;
-  --input: 217 22% 18%;
-  --ring: 213 80% 62%;
+  /* Dark mode: deep indigo-black — forensic workstation aesthetic
+     The amber and crimson accents GLOW against this background.
+  */
+  --background: 232 40% 7%;
+  --foreground: 232 18% 91%;
 
-  --sidebar: 217 30% 9%;
-  --sidebar-foreground: 214 18% 82%;
-  --sidebar-border: 217 22% 20%;
-  --sidebar-primary: 213 80% 62%;
-  --sidebar-primary-foreground: 217 30% 9%;
-  --sidebar-primary-border: 213 80% 52%;
-  --sidebar-accent: 217 22% 17%;
-  --sidebar-accent-foreground: 214 18% 88%;
-  --sidebar-accent-border: 217 22% 24%;
-  --sidebar-ring: 213 80% 62%;
+  --card: 232 35% 11%;
+  --card-foreground: 232 18% 91%;
+  --card-border: 232 28% 18%;
+
+  --popover: 232 35% 11%;
+  --popover-foreground: 232 18% 91%;
+  --popover-border: 232 28% 18%;
+
+  /* Bright violet in dark mode — stays vivid and readable */
+  --primary: 258 80% 72%;
+  --primary-foreground: 232 40% 7%;
+  --primary-border: 258 80% 62%;
+
+  --secondary: 232 30% 15%;
+  --secondary-foreground: 232 18% 82%;
+  --secondary-border: 232 28% 22%;
+
+  --muted: 232 30% 14%;
+  --muted-foreground: 232 16% 56%;
+  --muted-border: 232 28% 20%;
+
+  /* Amber glows on dark — feels like a lit highlight on a crime board */
+  --accent: 38 96% 54%;
+  --accent-foreground: 232 40% 7%;
+  --accent-border: 38 96% 44%;
+
+  /* Crimson glows on dark — high-stakes consequence signal */
+  --destructive: 0 78% 63%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-border: 0 78% 53%;
+
+  --border: 232 28% 20%;
+  --input: 232 30% 15%;
+  --ring: 258 80% 72%;
+
+  --sidebar: 232 40% 7%;
+  --sidebar-foreground: 232 18% 84%;
+  --sidebar-border: 232 28% 18%;
+  --sidebar-primary: 258 80% 72%;
+  --sidebar-primary-foreground: 232 40% 7%;
+  --sidebar-primary-border: 258 80% 62%;
+  --sidebar-accent: 232 30% 15%;
+  --sidebar-accent-foreground: 232 18% 91%;
+  --sidebar-accent-border: 232 28% 22%;
+  --sidebar-ring: 258 80% 72%;
 }
 
 @layer base {
@@ -160,25 +184,42 @@
   }
 }
 
+/* Amber highlight — tactic phrase marks in InlineHighlighter */
 .tactic-highlight {
-  @apply bg-amber-100 dark:bg-amber-900/40 text-amber-950 dark:text-amber-100 border-b border-amber-300 dark:border-amber-700/60 cursor-pointer transition-colors hover:bg-amber-200 dark:hover:bg-amber-900/60;
+  background-color: hsl(38 96% 50% / 0.18);
+  color: hsl(30 80% 25%);
+  border-bottom: 2px solid hsl(38 96% 50% / 0.6);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 1px 2px;
 }
-
+.dark .tactic-highlight {
+  background-color: hsl(38 96% 54% / 0.22);
+  color: hsl(38 96% 80%);
+  border-bottom-color: hsl(38 96% 54% / 0.7);
+}
+.tactic-highlight:hover {
+  background-color: hsl(38 96% 50% / 0.30);
+  border-bottom-color: hsl(38 96% 50% / 0.9);
+}
+.dark .tactic-highlight:hover {
+  background-color: hsl(38 96% 54% / 0.35);
+}
 .tactic-highlight.active {
-  @apply bg-amber-300 dark:bg-amber-700/70 border-amber-500 dark:border-amber-500 shadow-sm ring-2 ring-amber-400 ring-offset-1 dark:ring-offset-background;
+  background-color: hsl(38 96% 50% / 0.45);
+  border-bottom-color: hsl(38 96% 45%);
+  outline: 2px solid hsl(38 96% 50% / 0.5);
+  outline-offset: 1px;
+}
+.dark .tactic-highlight.active {
+  background-color: hsl(38 96% 54% / 0.50);
+  border-bottom-color: hsl(38 96% 60%);
+  outline-color: hsl(38 96% 54% / 0.6);
 }
 
-/* Scrollbar styles */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full;
-}
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/50;
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-muted-foreground/25 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/45; }
