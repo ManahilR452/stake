@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Stakes"
+version = "1.0.0"
+id = "artifacts/stakes"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22792
+
+[services.development]
+run = "pnpm --filter @workspace/stakes run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/stakes", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/stakes/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22792"
+BASE_PATH = "/"
